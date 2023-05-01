@@ -1,5 +1,5 @@
 # Optimization
-Implementation of Genetic Algorithms
+Implementation of Genetic Algorithms & PSO in MATLAB and Python
 
 The code is taken from:
 
