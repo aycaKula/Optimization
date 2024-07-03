@@ -33,6 +33,12 @@ c = [[0 if i == j
         if j > i else dists[j][i-j-1]
         for j in V] for i in V]
 
+print(c)
+
+
+try_
+
+model = Model()
 
 
 
