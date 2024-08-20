@@ -36,8 +36,6 @@ c = [[0 if i == j
 print(c)
 
 
-try_
-
 model = Model()
 
 
