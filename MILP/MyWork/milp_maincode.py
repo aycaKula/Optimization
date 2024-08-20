@@ -15,6 +15,7 @@ sat2_position = [2 * ts + 2 for ts in time_step]  # Satellite 2 moving uniformly
 
 positions = {time_step: [sat1_position, sat2_position] for time_step, sat1_position, sat2_position in zip(time_step, sat1_position, sat2_position)}
 
+print('denemeArge')
 """
 # Example positions of satellites (this could be more complex in a real scenario)
 positions = {
