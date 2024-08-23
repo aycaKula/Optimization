@@ -15,7 +15,6 @@ sat2_position = [2 * ts + 2 for ts in time_step]  # Satellite 2 moving uniformly
 
 positions = {time_step: [sat1_position, sat2_position] for time_step, sat1_position, sat2_position in zip(time_step, sat1_position, sat2_position)}
 
-print('denemeArge')
 """
 # Example positions of satellites (this could be more complex in a real scenario)
 positions = {
@@ -61,26 +60,6 @@ tasks = {
     3: {"start": 3, "end": 6, "processing_time": 1},  # Task 3
     4: {"start": 4, "end": 7, "processing_time": 2},  # Task 4
 }
-"""
-
-tasks = {
-    0: {"start": 0, "end": 4, "processing_time": 3},  # Task 0
-    1: {"start": 1, "end": 5, "processing_time": 2},  # Task 1
-    2: {"start": 1, "end": 6, "processing_time": 3},  # Task 2
-    3: {"start": 3, "end": 7, "processing_time": 2},  # Task 3
-    4: {"start": 4, "end": 8, "processing_time": 3},  # Task 4
-}
-
-
-# Task requirements (simplified) You need to be aware that multiple tasks can come at the first time step. start_time + processing_time <= end_time
-tasks = {
-    0: {"start": 0, "end": 3, "processing_time": 2},  # Task 0
-    1: {"start": 1, "end": 4, "processing_time": 1},  # Task 1
-    2: {"start": 1, "end": 5, "processing_time": 2},  # Task 2
-    3: {"start": 3, "end": 6, "processing_time": 1},  # Task 3
-    4: {"start": 4, "end": 7, "processing_time": 2},  # Task 4
-}
-"""
 
 # Tasks Timeline
 plt.figure(figsize=(10, 6))
