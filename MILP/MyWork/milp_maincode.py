@@ -6,8 +6,8 @@ import numpy as np
 num_satellites = 2  # Two satellites
 num_tasks = 5  # Example: 5 tasks
 
-time_step = range(15)
-num_time_step = len(time_step)  # Example: 10 time steps
+time_step = range(9)
+num_time_step = len(time_step)  # Example: 15 time steps
 
 # Data for satellite positions (Moving at same speed)
 sat1_position = [2 * ts + 1 for ts in time_step]  # Satellite 1 moving uniformly
@@ -52,13 +52,32 @@ y = [[model.add_var(var_type=BINARY) for t in range(num_time_step)] for j in ran
 
 
 # Task requirements (simplified)
-
+# Start and end time indicates that the task should be finished within this time interval
 tasks = {
-    0: {"start": 0, "end": 3, "processing_time": 2},  # Task 0
-    1: {"start": 1, "end": 4, "processing_time": 1},  # Task 1
-    2: {"start": 2, "end": 5, "processing_time": 2},  # Task 2
-    3: {"start": 3, "end": 6, "processing_time": 1},  # Task 3
-    4: {"start": 4, "end": 7, "processing_time": 2},  # Task 4
+    0: {"start": 0, "end": 8, "processing_time": 2},  # Task 0
+    1: {"start": 0, "end": 8, "processing_time": 1},  # Task 1
+    2: {"start": 0, "end": 8, "processing_time": 2},  # Task 2
+    3: {"start": 0, "end": 8, "processing_time": 1},  # Task 3
+    4: {"start": 0, "end": 8, "processing_time": 2},  # Task 4
+}
+
+
+# Observation windows for each satellite (in seconds)
+observation_windows = {
+    0: {  # Observation windows for Satellite 1
+        0: [(0, 3)],          # Task 0 can be observed from 0 to 5 seconds
+        1: [(1, 4)],          # Task 1 can be observed from 1 to 7 seconds
+        2: [(1, 5)],        # Task 2 can be observed from 10 to 15 seconds
+        3: [(2, 5)],          # Task 3 can be observed from 4 to 9 seconds
+        4: [(2, 6)],         # Task 4 can be observed from 8 to 12 seconds
+    },
+    1: {  # Observation windows for Satellite 2
+        0: [(1, 7)],          # Task 0 can be observed from 3 to 8 seconds
+        1: [(1, 4), (5, 7)],# Task 1 can be observed from 0 to 4 seconds and 10 to 15 seconds
+        2: [(2, 5)],         # Task 2 can be observed from 6 to 10 seconds
+        3: [(6, 7)],          # Task 3 can be observed from 2 to 7 seconds
+        4: [(2, 4)],          # Task 4 can be observed from 5 to 9 seconds
+    }
 }
 
 # Tasks Timeline
@@ -93,6 +112,7 @@ for j in range(num_tasks):
     for t in range(tasks[j]["start"], tasks[j]["end"]):
         model += xsum(x[j][i][t] for i in range(num_satellites)) == y[j][t]
 
+
 for j in range(num_tasks):
     model += xsum(y[j][t] for t in range(tasks[j]["start"], tasks[j]["end"])) == tasks[j]["processing_time"]
 
@@ -103,6 +123,7 @@ for j in range(num_tasks):
         for t in range(num_time_step):
             if t < tasks[j]["start"] or t > tasks[j]["end"]:
                 model += x[j][i][t] == 0 # The task must assigned between the task's start and end time
+
 
 """
 for j in range(num_tasks):
@@ -131,6 +152,16 @@ for i in range(num_satellites):
                         model += x[j][i][t] + x[j_prime][i][t] <= 1
 """
 
+# Observation constraints
+# Constraint 4 : Assign task j to satellite i only if it lies within the observation window
+for j in range(num_tasks):
+    for i in range(num_satellites):
+        for t in range(num_time_step):
+            in_window = any(start_time <= t <= end_time for start_time, end_time in observation_windows[i][j])
+            if not in_window:
+                model += x[j][i][t] == 0
+
+
 # Objective function: minimize total processing time (example)
 #model.objective = xsum(x[j][i][t] * tasks[j]["processing_time"] for j in range(num_tasks) for i in range(num_satellites) for t in range(num_time_step))
 model.objective = xsum(x[j][i][t] * t for j in range(num_tasks) for i in range(num_satellites) for t in range(num_time_step))
@@ -138,6 +169,13 @@ model.objective = xsum(x[j][i][t] * t for j in range(num_tasks) for i in range(n
 
 # Solve the problem
 model.optimize()
+
+# Debugging: Print the values of the decision variables
+for j in range(num_tasks):
+    for i in range(num_satellites):
+        for t in range(num_time_step):
+            if x[j][i][t].x >= 0.99:  # Check if the variable is effectively 1
+                print(f"x[{j}][{i}][{t}] = 1")  # Task j is assigned to satellite i at time t
 
 decision_matrix = np.zeros((num_tasks, num_satellites, num_time_step), dtype=int)
 # Output the results
@@ -160,3 +198,4 @@ for i in range(num_tasks):
 
 fig.suptitle('Optimized Decision Variables Matrix (x[i][j][k])')
 plt.show()
+
