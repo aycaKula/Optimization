@@ -2,6 +2,8 @@ from mip import Model, xsum, BINARY, MINIMIZE
 import matplotlib.pyplot as plt
 import numpy as np
 
+import time
+start_time = time.time()
 
 # Parameters
 num_satellites = 2  # Two satellites
@@ -119,19 +121,6 @@ plt.show()
 
 # Constraints
 # Constraint 1: Each task is assigned exactly once within their start-end time
-"""
-THIS IS ERASED BECAUSE THE SIGN MUST BE BIGGER AND EQUAL TO
-for j in range(num_tasks):
-    model += xsum(x[j][i][t] for i in range(num_satellites) for t in range(num_time_step)) == 1
-"""
-#for j in range(num_tasks):
-    #for i in range(num_satellites):
-    # model += xsum(x[j][i][t] for i in range(num_satellites) for t in range(num_time_step)) == 1
-    #  model += xsum(x[j][i][t] for i in range(num_satellites) for t in range(tasks[j]["start"], tasks[j]["end"])) >= 1
-    # model += xsum(x[j][i][t] for i in range(num_satellites) for t in range(tasks[j]["start"], tasks[j]["end"])) == tasks[j]["processing_time"]
-    #   model += xsum(x[j][i][t] for t in range(tasks[j]["start"], tasks[j]["end"])) == y[j][i]
-
-
 for j in range(num_tasks):
     for t in range(tasks[j]["start"], tasks[j]["end"]+1):
         model += xsum(x[j][i][t] for i in range(num_satellites)) == y[j][t]
@@ -147,14 +136,6 @@ for j in range(num_tasks):
             if t < tasks[j]["start"] or t > tasks[j]["end"]:
                 model += x[j][i][t] == 0 # The task must assigned between the task's start and end time
 
-
-"""
-for j in range(num_tasks):
-    for i in range(num_satellites):
-        for t in range(num_time_step):
-            if tasks[j]["start"] + tasks[j]["processing_time"] <= tasks[j]["end"]:
-                model += x[j][i][t] == 0
-"""
 
 # Constraint 3: Non-overlapping task assignments for each satellite
 
@@ -307,3 +288,7 @@ ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.8, 0.2)
 
 ax.grid(True)
 plt.show()
+
+end_time = time.time()
+computation_time = end_time - start_time
+print(f"Computation Time: {computation_time} seconds")
